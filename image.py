@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from pytesseract import pytesseract
+from pytesseract import pytesseract, Output
 
 # Load an image from file
 image = cv2.imread('uploads/test1.jpg')  
@@ -15,7 +15,25 @@ invert_image = cv2.bitwise_not(image)
 # Convert the image to grayscale
 gray = cv2.cvtColor(invert_image, cv2.COLOR_BGR2GRAY)
 
-thresh = cv2.threshold(gray, 220, 200, cv2.THRESH_BINARY)[1]
+osd = pytesseract.image_to_osd(gray, output_type=Output.DICT)
+rotation_angle = osd['rotate']  # Angle to rotate the image
+
+print(f"Detected rotation angle: {rotation_angle} degrees")
+
+# Rotate the image to correct orientation
+if rotation_angle != 0:
+    # Get the image dimensions
+    (h, w) = gray.shape[:2]
+    center = (w // 2, h // 2)
+
+    # Rotate the image
+    rotation_matrix = cv2.getRotationMatrix2D(center, -rotation_angle, 1.0)
+    rotated_image = cv2.warpAffine(gray, rotation_matrix, (w, h))
+else:
+    rotated_image = gray
+
+
+thresh = cv2.threshold(rotated_image, 220, 200, cv2.THRESH_BINARY)[1]
 cv2.imwrite('uploads/thresh.jpg', thresh)
 
 inverted_thresh = cv2.bitwise_not(thresh)
@@ -32,9 +50,9 @@ cv2.imwrite('uploads/inverted_thresh.jpg', inverted_thresh)
 # Set the image to black and white depending on each pixel intensity
 #thresh = cv2.adaptiveThreshold(equilized, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
 
-kernel = np.array([[-1, -1, -1], 
-                 [-1,  9, -1], 
-                  [-1, -1, -1]])
+#kernel = np.array([[-1, -1, -1], 
+ #                [-1,  9, -1], 
+  #                [-1, -1, -1]])
 
 #sharpened = cv2.filter2D(thresh, -1, kernel)
 
