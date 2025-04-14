@@ -3,7 +3,7 @@ import numpy as np
 from pytesseract import pytesseract, Output
 
 # Load an image from file
-image = cv2.imread('uploads/test1.jpg')  
+image = cv2.imread('uploads/Test3.jpg')  
 
 ## PreProdessing the Image 
 # Convert the image to grayscale
@@ -14,7 +14,7 @@ invert_image = cv2.bitwise_not(image)
 
 # Convert the image to grayscale
 gray = cv2.cvtColor(invert_image, cv2.COLOR_BGR2GRAY)
-
+"""
 osd = pytesseract.image_to_osd(gray, output_type=Output.DICT)
 rotation_angle = osd['rotate']  # Angle to rotate the image
 
@@ -31,12 +31,16 @@ if rotation_angle != 0:
     rotated_image = cv2.warpAffine(gray, rotation_matrix, (w, h))
 else:
     rotated_image = gray
+"""
 
-
-thresh = cv2.threshold(rotated_image, 220, 200, cv2.THRESH_BINARY)[1]
+thresh = cv2.threshold(gray, 220, 200, cv2.THRESH_BINARY)[1]
 cv2.imwrite('uploads/thresh.jpg', thresh)
 
-inverted_thresh = cv2.bitwise_not(thresh)
+crop = thresh[2250:3000, 1500:2750]
+cv2.imwrite('uploads/crop.jpg', crop)
+
+
+inverted_thresh = cv2.bitwise_not(crop)
 cv2.imwrite('uploads/inverted_thresh.jpg', inverted_thresh)
 
 
